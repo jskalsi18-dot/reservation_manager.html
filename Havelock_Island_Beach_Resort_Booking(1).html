@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Havelock Island Beach Resort - Booking Voucher Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3fa697;
+            --primary-light: #5fb8a8;
+            --secondary: #2c5aa0;
+            --accent: #ff9f43;
+            --background: #f0ede8;
+            --card-bg: #faf9f7;
+            --foreground: #1a3328;
+            --muted: #d4c5b9;
+            --border-color: #c8d4d1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fef5e7 0%, #e8f4f8 50%, #b3dfe0 100%);
+            color: var(--foreground);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.875rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card-subtitle {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--foreground);
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(63, 166, 151, 0.1);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .section-title:hover {
+            background: rgba(63, 166, 151, 0.05);
+        }
+
+        .section-content {
+            margin-top: 0.5rem;
+        }
+
+        .section-content.hidden {
+            display: none;
+        }
+
+        button {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--foreground);
+        }
+
+        .btn-secondary:hover {
+            background: #f5f3f1;
+        }
+
+        .voucher-preview {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 0.875rem;
+            padding: 2rem;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 1rem;
+        }
+
+        .voucher-header {
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .voucher-logo {
+            height: 6rem;
+            margin-bottom: 1rem;
+        }
+
+        .voucher-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .voucher-subtitle {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .voucher-contact {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .voucher-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .voucher-section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .voucher-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .voucher-field {
+            font-size: 0.85rem;
+        }
+
+        .voucher-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .voucher-value {
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-top: 2px solid var(--primary);
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .voucher-footer {
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            no-print: true;
+        }
+
+        .invalid-message {
+            background: #fef5e7;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .action-buttons {
+                display: none;
+            }
+            .voucher-preview {
+                max-height: none;
+                position: static;
+                border: none;
+                padding: 0;
+            }
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                display: none;
+            }
+        }
+
+        .chevron {
+            display: inline-block;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(-45deg);
+            transition: transform 0.2s;
+        }
+
+        .section-title.open .chevron {
+            transform: rotate(45deg);
+        }
+
+        .calculation-summary {
+            background: rgba(63, 166, 151, 0.05);
+            border: 1px solid var(--primary);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+        }
+
+        .calc-row.total {
+            border-top: 2px solid var(--primary);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="layout">
+            <!-- Booking Form -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-title">
+                            <div class="card-title">Ocean View Booking Console</div>
+                            <div class="card-subtitle">Havelock Island Beach Resort</div>
+                        </div>
+                    </div>
+
+                    <form id="bookingForm">
+                        <!-- Guest Information -->
+                        <div class="section-title open" onclick="toggleSection(this)">
+                            <span class="chevron"></span>
+                            Guest Information
+                        </div>
+                        <div class="section-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Guest Name</label>
+                                    <input type="text" id="guestName" placeholder="Enter guest name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Reservation No.</label>
+                                    <input type="text" id="bookingId" placeholder="e.g., HIBR/25-26/1415">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="email" placeholder="guest@email.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Agent Name / c/o</label>
+                                    <input type="text" id="agentName" value="Direct Booking">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dates & Duration -->
+                        <div class="section-title open" onclick="toggleSection(this)">
+                            <span class="chevron"></span>
+                            Dates & Duration
+                        </div>
+                        <div class="section-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Check-in Date</label>
+                                    <input type="date" id="checkIn">
+                                </div>
+                                <div class="form-group">
+                                    <label>Check-out Date</label>
+                                    <input type="date" id="checkOut">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Room Details -->
+                        <div class="section-title open" onclick="toggleSection(this)">
+                            <span class="chevron"></span>
+                            Room Details
+                        </div>
+                        <div class="section-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Number of Rooms</label>
+                                    <input type="number" id="numRooms" value="1" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Room Category</label>
+                                    <select id="roomCategory">
+                                        <option>Deluxe Cottage (Garden View)</option>
+                                        <option selected>Deluxe Cottage (Sea Facing)</option>
+                                        <option>Premium Cottage Garden Facing</option>
+                                        <option>Suite Cottage Ocean View - Beach Front</option>
+                                        <option>Suite Cottage Garden View</option>
+                                        <option>Luxury Suite Sea Facing - Beach Front</option>
+                                        <option>Family Cottage Garden View</option>
+                                        <option>Ocean Suite Private Pool Villa - Sea Facing (Beach Front)</option>
+                                        <option>Presidential Ocean Suite Private Pool Villa - Sea Facing (Beach Front) Independent Cottage</option>
+                                        <option>Havelock Paradise Private Pool Villa - Sea Facing (Beach Front) Independent Cottage</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Guest Composition -->
+                        <div class="section-title open" onclick="toggleSection(this)">
+                            <span class="chevron"></span>
+                            Guest Composition
+                        </div>
+                        <div class="section-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Number of Adults</label>
+                                    <input type="number" id="numAdults" value="2" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Number of Children</label>
+                                    <input type="number" id="numChildren" value="0" min="0">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Extra Adults (with bed)</label>
+                                    <input type="number" id="extraAdultsWithBed" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Children (on bed)</label>
+                                    <input type="number" id="childrenOnBed" value="0" min="0">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Children (no bed)</label>
+                                    <input type="number" id="childrenNoBed" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Children (under 5 yrs)</label>
+                                    <input type="number" id="childrenUnder5" value="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Meal & Payment -->
+                        <div class="section-title open" onclick="toggleSection(this)">
+                            <span class="chevron"></span>
+                            Meal & Payment
+                        </div>
+                        <div class="section-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Meal Plan</label>
+                                    <select id="mealPlan">
+                                        <option selected>CP Plan</option>
+                                        <option>MAP Plan</option>
+                                        <option>AP Plan</option>
+                                        <option>Without Meals</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Payment Status</label>
+                                    <select id="paymentStatus">
+                                        <option selected>Payment Received</option>
+                                        <option>Pending</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Advance Received (INR)</label>
+                                    <input type="number" id="advanceReceived" value="0" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Special Notes</label>
+                                <textarea id="notes" rows="2" placeholder="Any special requests or notes..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="calculation-summary" id="calcSummary" style="display: none;">
+                            <div class="calc-row">
+                                <span>Room Charges:</span>
+                                <span id="calcRoomBase">INR 0</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Extra Guest Charges:</span>
+                                <span id="calcExtraGuest">INR 0</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Meal Plan Charges:</span>
+                                <span id="calcMealPlan">INR 0</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Subtotal:</span>
+                                <span id="calcSubtotal">INR 0</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>GST (18%):</span>
+                                <span id="calcGST">INR 0</span>
+                            </div>
+                            <div class="calc-row total">
+                                <span>Grand Total:</span>
+                                <span id="calcGrandTotal">INR 0</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Advance Paid:</span>
+                                <span id="calcAdvance">INR 0</span>
+                            </div>
+                            <div class="calc-row total">
+                                <span>Balance Due:</span>
+                                <span id="calcBalance">INR 0</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Voucher Preview -->
+            <div>
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="btn-secondary" onclick="copyToClipboard()">📋 Copy</button>
+                    <button class="btn-secondary" onclick="exportPDF()">📥 PDF</button>
+                    <button class="btn-secondary" onclick="window.print()">🖨️ Print</button>
+                    <button class="btn-secondary" onclick="shareWhatsApp()">💬 WhatsApp</button>
+                    <button class="btn-secondary" onclick="shareEmail()">✉️ Email</button>
+                </div>
+                <div class="voucher-preview" id="voucherPreview">
+                    <div class="invalid-message">Enter booking details to generate voucher preview</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ROOM_RATES = {
+            "Deluxe Cottage (Garden View)": 8500,
+            "Deluxe Cottage (Sea Facing)": 9500,
+            "Premium Cottage Garden Facing": 10000,
+            "Suite Cottage Ocean View - Beach Front": 14500,
+            "Suite Cottage Garden View": 13500,
+            "Luxury Suite Sea Facing - Beach Front": 16000,
+            "Family Cottage Garden View": 13500,
+            "Ocean Suite Private Pool Villa - Sea Facing (Beach Front)": 27500,
+            "Presidential Ocean Suite Private Pool Villa - Sea Facing (Beach Front) Independent Cottage": 42500,
+            "Havelock Paradise Private Pool Villa - Sea Facing (Beach Front) Independent Cottage": 32500,
+        };
+
+        const MEAL_CHARGES = {
+            "CP Plan": 0,
+            "MAP Plan": 1000,
+            "AP Plan": 2000,
+            "Without Meals": -500,
+        };
+
+        // Set today's date as default check-in
+        document.getElementById('checkIn').valueAsDate = new Date();
+        
+        // Set check-out as 3 days later
+        const checkOut = new Date();
+        checkOut.setDate(checkOut.getDate() + 3);
+        document.getElementById('checkOut').valueAsDate = checkOut;
+
+        // Add event listeners
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('change', updateVoucher);
+            input.addEventListener('input', updateVoucher);
+        });
+
+        function toggleSection(element) {
+            element.classList.toggle('open');
+            const content = element.nextElementSibling;
+            content.classList.toggle('hidden');
+        }
+
+        function calculateBooking() {
+            const checkIn = new Date(document.getElementById('checkIn').value);
+            const checkOut = new Date(document.getElementById('checkOut').value);
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+            if (nights <= 0) return null;
+
+            const numRooms = parseInt(document.getElementById('numRooms').value) || 0;
+            const roomCategory = document.getElementById('roomCategory').value;
+            const roomRate = ROOM_RATES[roomCategory] || 0;
+            const roomBase = roomRate * nights * numRooms;
+
+            const extraAdultsWithBed = parseInt(document.getElementById('extraAdultsWithBed').value) || 0;
+            const childrenOnBed = parseInt(document.getElementById('childrenOnBed').value) || 0;
+            const childrenNoBed = parseInt(document.getElementById('childrenNoBed').value) || 0;
+            
+            const extraAdultCharge = extraAdultsWithBed * 2500 * nights;
+            const childOnBedCharge = childrenOnBed * 1500 * nights;
+            const childNoBedCharge = childrenNoBed * 800 * nights;
+            const extraGuestCharges = extraAdultCharge + childOnBedCharge + childNoBedCharge;
+
+            const numAdults = parseInt(document.getElementById('numAdults').value) || 0;
+            const numChildren = parseInt(document.getElementById('numChildren').value) || 0;
+            const childrenUnder5 = parseInt(document.getElementById('childrenUnder5').value) || 0;
+            const totalGuests = numAdults + numChildren - childrenUnder5;
+            
+            const mealPlan = document.getElementById('mealPlan').value;
+            const mealCharge = MEAL_CHARGES[mealPlan] || 0;
+            const mealPlanCharges = mealCharge * totalGuests * nights;
+
+            const subtotal = roomBase + extraGuestCharges + mealPlanCharges;
+            const gstAmount = (subtotal * 18) / 100;
+            const grandTotal = subtotal + gstAmount;
+            const advanceReceived = parseInt(document.getElementById('advanceReceived').value) || 0;
+            const balance = grandTotal - advanceReceived;
+
+            return {
+                nights,
+                roomBase,
+                extraGuestCharges,
+                mealPlanCharges,
+                subtotal,
+                gstAmount,
+                grandTotal,
+                balance,
+                advanceReceived
+            };
+        }
+
+        function formatCurrency(amount) {
+            return 'INR ' + Math.round(amount).toLocaleString('en-IN');
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function updateVoucher() {
+            const calc = calculateBooking();
+            
+            if (!calc || calc.nights <= 0) {
+                document.getElementById('voucherPreview').innerHTML = '<div class="invalid-message">Enter booking details to generate voucher preview</div>';
+                document.getElementById('actionButtons').style.display = 'none';
+                document.getElementById('calcSummary').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('calcSummary').style.display = 'block';
+            document.getElementById('calcRoomBase').textContent = formatCurrency(calc.roomBase);
+            document.getElementById('calcExtraGuest').textContent = formatCurrency(calc.extraGuestCharges);
+            document.getElementById('calcMealPlan').textContent = formatCurrency(calc.mealPlanCharges);
+            document.getElementById('calcSubtotal').textContent = formatCurrency(calc.subtotal);
+            document.getElementById('calcGST').textContent = formatCurrency(calc.gstAmount);
+            document.getElementById('calcGrandTotal').textContent = formatCurrency(calc.grandTotal);
+            document.getElementById('calcAdvance').textContent = formatCurrency(calc.advanceReceived);
+            document.getElementById('calcBalance').textContent = formatCurrency(calc.balance);
+
+            document.getElementById('actionButtons').style.display = 'flex';
+
+            const guestName = document.getElementById('guestName').value || 'Guest';
+            const bookingId = document.getElementById('bookingId').value || 'N/A';
+            const email = document.getElementById('email').value || 'N/A';
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+            const numRooms = document.getElementById('numRooms').value;
+            const roomCategory = document.getElementById('roomCategory').value;
+            const mealPlan = document.getElementById('mealPlan').value;
+            const agentName = document.getElementById('agentName').value;
+            const notes = document.getElementById('notes').value;
+            const paymentStatus = document.getElementById('paymentStatus').value;
+
+            const voucherHTML = `
+                <div id="voucherContent">
+                    <div class="voucher-header">
+                        <div class="voucher-title">Havelock Island Beach Resort</div>
+                        <div class="voucher-subtitle">Pvt. Ltd.</div>
+                        <div class="voucher-contact">
+                            <p>Govind Nagar Beach, Swaraj Dweep (Havelock Island)</p>
+                            <p>Andaman & Nicobar Islands 744211</p>
+                            <p>Email: contact@havelockislandbeachresort.com</p>
+                            <p>Phone: 7290055525 | Mobile: +91 99320 80012</p>
+                        </div>
+                    </div>
+
+                    <div class="voucher-section">
+                        <div style="text-align: center; font-size: 1.25rem; font-weight: 700;">BOOKING CONFIRMATION VOUCHER</div>
+                        <div style="text-align: center; color: #666; margin-top: 0.25rem; font-size: 0.875rem;">Please present this voucher at check-in</div>
+                    </div>
+
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Guest Information</div>
+                        <div class="voucher-row">
+                            <div class="voucher-field">
+                                <div class="voucher-label">Guest Name:</div>
+                                <div class="voucher-value">${guestName}</div>
+                            </div>
+                            <div class="voucher-field">
+                                <div class="voucher-label">Reservation No:</div>
+                                <div class="voucher-value">${bookingId}</div>
+                            </div>
+                        </div>
+                        <div class="voucher-row">
+                            <div class="voucher-field">
+                                <div class="voucher-label">Email:</div>
+                                <div class="voucher-value">${email}</div>
+                            </div>
+                            <div class="voucher-field">
+                                <div class="voucher-label">Agent Name:</div>
+                                <div class="voucher-value">${agentName}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Booking Details</div>
+                        <div class="voucher-row">
+                            <div class="voucher-field">
+                                <div class="voucher-label">Check-in:</div>
+                                <div class="voucher-value">${formatDate(checkIn)}</div>
+                            </div>
+                            <div class="voucher-field">
+                                <div class="voucher-label">Check-out:</div>
+                                <div class="voucher-value">${formatDate(checkOut)}</div>
+                            </div>
+                        </div>
+                        <div class="voucher-row">
+                            <div class="voucher-field">
+                                <div class="voucher-label">No. of Nights:</div>
+                                <div class="voucher-value">${calc.nights}</div>
+                            </div>
+                            <div class="voucher-field">
+                                <div class="voucher-label">No. of Rooms:</div>
+                                <div class="voucher-value">${numRooms}</div>
+                            </div>
+                        </div>
+                        <div class="voucher-row">
+                            <div class="voucher-field">
+                                <div class="voucher-label">Room Category:</div>
+                                <div class="voucher-value">${roomCategory}</div>
+                            </div>
+                            <div class="voucher-field">
+                                <div class="voucher-label">Meal Plan:</div>
+                                <div class="voucher-value">${mealPlan}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Pricing Breakdown</div>
+                        <div style="font-size: 0.875rem; line-height: 1.6;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Room Charges (${calc.nights} nights):</span>
+                                <span>${formatCurrency(calc.roomBase)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Extra Guest Charges:</span>
+                                <span>${formatCurrency(calc.extraGuestCharges)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Meal Plan Charges:</span>
+                                <span>${formatCurrency(calc.mealPlanCharges)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 1px dashed #999; padding-top: 0.5rem;">
+                                <span>Subtotal:</span>
+                                <span>${formatCurrency(calc.subtotal)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>GST (18%):</span>
+                                <span>${formatCurrency(calc.gstAmount)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 2px solid ${getComputedStyle(document.documentElement).getPropertyValue('--primary')}; padding-top: 0.5rem; font-weight: 600;">
+                                <span>Grand Total:</span>
+                                <span>${formatCurrency(calc.grandTotal)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 0.5rem; color: #666;">
+                                <span>Advance Received:</span>
+                                <span>${formatCurrency(calc.advanceReceived)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 2px solid ${getComputedStyle(document.documentElement).getPropertyValue('--primary')}; padding-top: 0.5rem; font-weight: 600;">
+                                <span>Balance Due:</span>
+                                <span>${formatCurrency(calc.balance)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${notes ? `<div class="voucher-section">
+                        <div class="voucher-section-title">Special Notes</div>
+                        <div style="font-size: 0.875rem;">${notes}</div>
+                    </div>` : ''}
+
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Payment Status</div>
+                        <div style="font-size: 0.875rem;">
+                            <strong>${paymentStatus}</strong>
+                        </div>
+                    </div>
+
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Hotel Policy</div>
+                        <div style="font-size: 0.8rem; line-height: 1.6; color: #555;">
+                            <p><strong>Check-in / Check-out:</strong> Standard check-in is 1100 hours and check-out is 0830 hours. Early check-in and late check-out are subject to availability and may incur additional charges.</p>
+                            <p style="margin-top: 0.5rem;"><strong>Valid Identification:</strong> Valid photo identification (address proof) is mandatory for all guests at check-in.</p>
+                            <p style="margin-top: 0.5rem;"><strong>Guest Liability:</strong> Guests are liable for any damages or losses during their stay. In case of damage, an assessment will be made to determine repair costs.</p>
+                            <p style="margin-top: 0.5rem;"><strong>Force Majeure:</strong> The hotel is not responsible for cancellations due to flight/ferry cancellations, natural disasters, or other force majeure events.</p>
+                            <p style="margin-top: 0.5rem;"><strong>Mandatory Charges:</strong> Mandatory gala dinners during festive seasons (New Year's Eve, Christmas Eve) will be charged on a mandatory basis.</p>
+                            <p style="margin-top: 0.5rem;"><strong>Cancellation Policy:</strong></p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.25rem;">
+                                <li>30+ days before arrival: 10% processing fee</li>
+                                <li>20-30 days before arrival: 50% cancellation charges</li>
+                                <li>Within 20 days: 100% cancellation charges</li>
+                                <li>Peak Season (15 Dec - 5 Jan): No refunds, 100% charges</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><strong>Payment Terms:</strong> 50% payment required to confirm booking, full payment due 7 days before arrival.</p>
+                            <p style="margin-top: 0.5rem;"><strong>GST:</strong> Applicable at 18% on room rates and food & beverages as per government regulations.</p>
+                            <p style="margin-top: 0.5rem;"><strong>Refunds:</strong> Cancellations via email to contact@havelockislandbeachresort.com. Refunds processed within 7-10 working days via net-banking.</p>
+                        </div>
+                    </div>
+
+                    <div class="voucher-footer">
+                        <p style="font-weight: 600;">We look forward to welcoming you to your island escape!</p>
+                        <p style="margin-top: 0.5rem;">For any queries, please contact us at contact@havelockislandbeachresort.com</p>
+                        <p>Phone: 7290055525 | Mobile: +91 99320 80012</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('voucherPreview').innerHTML = voucherHTML;
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById('voucherContent').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('Voucher copied to clipboard!');
+            });
+        }
+
+        function exportPDF() {
+            const element = document.getElementById('voucherContent');
+            const opt = {
+                margin: 10,
+                filename: 'booking-voucher.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function shareWhatsApp() {
+            const content = document.getElementById('voucherContent').innerText;
+            const message = encodeURIComponent('*Havelock Island Beach Resort - Booking Confirmation*\n\n' + content);
+            window.open(`https://api.whatsapp.com/send?text=${message}`, '_blank');
+        }
+
+        function shareEmail() {
+            const email = document.getElementById('email').value;
+            const bookingId = document.getElementById('bookingId').value;
+            const content = document.getElementById('voucherContent').innerText;
+            const subject = `Booking Confirmation - ${bookingId}`;
+            window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(content)}`;
+        }
+
+        // Initialize voucher
+        updateVoucher();
+    </script>
+</body>
+</html>
