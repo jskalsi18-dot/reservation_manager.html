@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Havelock Island Beach Resort - Reservation Manager</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .scroll-container {
+            max-height: 80vh;
+            overflow-y: auto;
+            /* Custom scrollbar for aesthetics */
+            scrollbar-width: thin;
+            scrollbar-color: #4f46e5 #f7f9fb;
+        }
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroll-container::-webkit-scrollbar-thumb {
+            background-color: #4f46e5;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen p-4 sm:p-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight">
+                Havelock Island Beach Resort
+            </h1>
+            <p class="text-gray-500 mt-1">Special Service Reservation Manager</p>
+            <p id="user-info" class="text-xs text-gray-400 mt-2">
+                Loading User...
+            </p>
+        </header>
+
+        <main class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Reservation Form -->
+            <section class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg h-fit">
+                <h2 class="text-xl font-bold mb-4 text-indigo-600">Add New Reservation</h2>
+                <form id="reservation-form" class="space-y-4">
+                    
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="agentName" class="block text-sm font-medium text-gray-700">Agent Name</label>
+                            <input type="text" id="agentName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="guestName" class="block text-sm font-medium text-gray-700">Guest Name</label>
+                            <input type="text" id="guestName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Resort Name Field -->
+                    <div>
+                        <label for="resortName" class="block text-sm font-medium text-gray-700">Resort/Hotel Name</label>
+                        <input type="text" id="resortName" placeholder="e.g., Havelock Island Beach Resort" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <!-- End Resort Name Field -->
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="checkInDate" class="block text-sm font-medium text-gray-700">Check-in Date (for Sorting)</label>
+                            <input type="date" id="checkInDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="checkOutDate" class="block text-sm font-medium text-gray-700">Check-out Date</label>
+                            <input type="date" id="checkOutDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="adults" class="block text-sm font-medium text-gray-700">Adults</label>
+                            <input type="number" id="adults" min="1" value="2" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="children" class="block text-sm font-medium text-gray-700">Children</label>
+                            <input type="number" id="children" min="0" value="0" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="totalNights" class="block text-sm font-medium text-gray-700">Nights</label>
+                            <input type="number" id="totalNights" min="1" value="2" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="roomType" class="block text-sm font-medium text-gray-700">Room Type</label>
+                        <input type="text" id="roomType" placeholder="e.g., 01 Super Deluxe Cottage (Garden Facing)" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label for="mealPlan" class="block text-sm font-medium text-gray-700">Meal Plan</label>
+                        <input type="text" id="mealPlan" placeholder="e.g., MAP (Includes Breakfast & Dinner)" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="pt-2">
+                        <h3 class="text-md font-semibold text-gray-800 mb-2">Special Services</h3>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="candleLightDinner" class="form-checkbox h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500">
+                                <span class="ml-2 text-gray-700">Candle Light Dinner</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="flowerBedDecoration" class="form-checkbox h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500">
+                                <span class="ml-2 text-gray-700">Flower Bed Decoration</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Transportation Services -->
+                    <div class="pt-2 border-t pt-4 mt-4">
+                        <h3 class="text-md font-semibold text-gray-800 mb-2">Transportation Services</h3>
+                        <div class="flex flex-wrap gap-4 mb-3">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="hasPickup" class="form-checkbox h-5 w-5 text-green-600 rounded focus:ring-green-500">
+                                <span class="ml-2 text-gray-700">Airport/Station Pickup</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="hasDrop" class="form-checkbox h-5 w-5 text-green-600 rounded focus:ring-green-500">
+                                <span class="ml-2 text-gray-700">Airport/Station Drop</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label for="transportationNotes" class="block text-sm font-medium text-gray-700">Notes (Flight/Train No., Time, Location)</label>
+                            <textarea id="transportationNotes" rows="2" placeholder="e.g., Pickup required from Mumbai Airport (BOM) on 28th Nov at 14:00. Flight AI101." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        </div>
+                    </div>
+                    <!-- End Transportation Services -->
+
+
+                    <div>
+                        <label for="pricingSummary" class="block text-sm font-medium text-gray-700">Pricing Breakdown & Details (Copy/Paste Full Summary)</label>
+                        <textarea id="pricingSummary" rows="5" placeholder="Paste the full breakdown here, including all charges, taxes, and service descriptions." required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="totalAmount" class="block text-sm font-medium text-gray-700">Total Amount (₹)</label>
+                            <input type="number" id="totalAmount" placeholder="e.g., 27902" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border font-bold text-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <!-- Payment Status Checkbox -->
+                        <div class="flex items-center pt-6">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="isPaymentPending" class="form-checkbox h-5 w-5 text-yellow-500 rounded focus:ring-yellow-400">
+                                <span class="ml-2 text-gray-700 font-semibold">Balance Payment Pending</span>
+                            </label>
+                        </div>
+                        <!-- End Payment Status Checkbox -->
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                        <span id="submit-text">Submit Reservation</span>
+                        <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                    <div id="status-message" class="text-center text-sm mt-3 hidden"></div>
+                </form>
+            </section>
+
+            <!-- Reservation List -->
+            <section class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl font-bold mb-4 text-indigo-600">Upcoming Special Service Reservations</h2>
+                <div class="scroll-container">
+                    <div id="reservations-list" class="space-y-4">
+                        <p class="text-gray-500 text-center py-8" id="loading-reservations">Loading reservations...</p>
+                        <!-- Reservations will be injected here -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, orderBy, setLogLevel, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT: Global variables provided by the canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        const STATUS = {
+            SUCCESS: 'text-green-600',
+            ERROR: 'text-red-600'
+        };
+
+        const form = document.getElementById('reservation-form');
+        const list = document.getElementById('reservations-list');
+        const submitBtn = document.getElementById('submit-btn');
+        const submitText = document.getElementById('submit-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const statusMessage = document.getElementById('status-message');
+        const userInfo = document.getElementById('user-info');
+
+        // Helper function to display messages
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `text-center text-sm mt-3 ${type}`;
+            statusMessage.classList.remove('hidden');
+            setTimeout(() => statusMessage.classList.add('hidden'), 5000);
+        }
+
+        // Helper function to format date from YYYY-MM-DD
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString + 'T00:00:00'); // Append T00:00:00 to avoid timezone issues
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        // --- FIREBASE INITIALIZATION AND AUTHENTICATION ---
+        async function initializeFirebase() {
+            if (!firebaseConfig) {
+                showStatus("Firebase configuration is missing.", STATUS.ERROR);
+                return;
+            }
+
+            try {
+                // setLogLevel('debug'); // Uncomment for debugging
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userInfo.textContent = `User ID: ${userId} | App ID: ${appId}`;
+                        isAuthReady = true;
+                        // Start listening to the database after auth is ready
+                        setupRealtimeListener();
+                    } else {
+                        // Sign in anonymously if initialAuthToken is not available
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                showStatus("Error initializing the app. Check console for details.", STATUS.ERROR);
+            }
+        }
+
+        // --- REAL-TIME DATA LISTENER (Dashboard) ---
+        function setupRealtimeListener() {
+            if (!isAuthReady || !db) return;
+
+            const collectionPath = `artifacts/${appId}/public/data/reservations`;
+            const reservationsRef = collection(db, collectionPath);
+            
+            // Query to fetch data, ordered by Check-in Date
+            // Note: This requires a composite index in Firestore in a real-world scenario.
+            const q = query(reservationsRef, orderBy('checkInDate', 'asc'));
+
+            onSnapshot(q, (snapshot) => {
+                const reservations = [];
+                snapshot.forEach(doc => {
+                    reservations.push({ id: doc.id, ...doc.data() });
+                });
+                renderReservations(reservations);
+            }, (error) => {
+                console.error("Error fetching reservations:", error);
+                document.getElementById('loading-reservations').textContent = "Error loading reservations. Please check permissions.";
+            });
+        }
+
+        function renderReservations(reservations) {
+            list.innerHTML = ''; // Clear the current list
+            document.getElementById('loading-reservations')?.remove();
+
+            if (reservations.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-center py-8">No special service reservations found.</p>';
+                return;
+            }
+
+            reservations.forEach(res => {
+                // Highlight Special Services
+                const services = [];
+                if (res.hasCandleLightDinner) services.push('<span class="bg-red-100 text-red-700 py-0.5 px-2 rounded-full text-xs font-medium">Candle Light Dinner</span>');
+                if (res.hasFlowerBedDecoration) services.push('<span class="bg-pink-100 text-pink-700 py-0.5 px-2 rounded-full text-xs font-medium">Flower Bed Decoration</span>');
+                const servicesHtml = services.length > 0 ? services.join(' ') : '<span class="text-gray-400 text-xs">No special services booked</span>';
+                
+                // Payment Status Tag
+                const paymentTag = res.isPaymentPending
+                    ? '<span class="bg-yellow-100 text-yellow-700 py-0.5 px-2 rounded-full text-xs font-medium border border-yellow-300">Payment Pending</span>'
+                    : '<span class="bg-green-100 text-green-700 py-0.5 px-2 rounded-full text-xs font-medium border border-green-300">Payment Paid</span>';
+
+                // Transportation Services Tags
+                const transportTags = [];
+                if (res.hasPickup) transportTags.push('<span class="bg-lime-100 text-lime-700 py-0.5 px-2 rounded-full text-xs font-medium">Pickup</span>');
+                if (res.hasDrop) transportTags.push('<span class="bg-lime-100 text-lime-700 py-0.5 px-2 rounded-full text-xs font-medium">Drop</span>');
+                const transportHtml = transportTags.length > 0 ? transportTags.join(' ') : '<span class="text-gray-400 text-xs">No transport service</span>';
+                
+                // Show Transportation Notes button only if notes exist
+                const notesButton = res.transportationNotes && res.transportationNotes.trim() !== ''
+                    ? `<button onclick="document.getElementById('transport-modal-${res.id}').classList.remove('hidden')" class="text-xs font-semibold text-green-500 hover:text-green-700 mt-1 ml-2">View Transport Details</button>`
+                    : '';
+
+                const html = `
+                    <div class="reservation-card border border-gray-200 rounded-xl p-4 shadow-sm bg-white hover:shadow-md transition duration-200">
+                        <div class="flex justify-between items-start mb-3 border-b pb-2">
+                            <h3 class="text-lg font-bold text-gray-800">${res.guestName} <span class="text-sm font-normal text-gray-500 ml-1">(${res.totalNights} Nights)</span></h3>
+                            <span class="text-sm font-semibold text-indigo-600 bg-indigo-50 py-1 px-3 rounded-full shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                ${formatDate(res.checkInDate)}
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <!-- Display Resort Name -->
+                            <div class="text-sm font-semibold text-indigo-700">
+                                Resort: ${res.resortName}
+                            </div>
+                            <!-- End Display Resort Name -->
+                            <div class="text-sm">
+                                <span class="font-medium text-gray-600">Services:</span> ${servicesHtml}
+                            </div>
+                            <div class="text-sm flex items-center">
+                                <span class="font-medium text-gray-600">Transportation:</span> ${transportHtml} ${notesButton}
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium text-gray-600">Room/Meal:</span> ${res.roomType} / ${res.mealPlan}
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium text-gray-600">Guests:</span> ${res.adults} Adults, ${res.children} Children
+                            </div>
+                            <!-- Updated: Amount with Payment Status -->
+                            <div class="text-sm font-bold text-gray-800 flex justify-between items-center pt-1 border-t mt-2">
+                                <span><span class="font-medium text-gray-600">Total Amount:</span> ₹${res.totalAmount.toLocaleString('en-IN')}</span>
+                                ${paymentTag}
+                            </div>
+                            
+                            <button onclick="document.getElementById('summary-modal-${res.id}').classList.remove('hidden')" class="text-xs font-semibold text-indigo-500 hover:text-indigo-700 mt-1">View Full Pricing Summary & Detail</button>
+                        </div>
+                        
+                        <!-- Modal for Summary -->
+                        <div id="summary-modal-${res.id}" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center p-4 hidden">
+                            <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-2xl">
+                                <h4 class="text-xl font-bold mb-3 text-indigo-600">Pricing Breakdown for ${res.guestName}</h4>
+                                <div class="whitespace-pre-wrap text-sm text-gray-700 border p-3 rounded-md bg-gray-50 max-h-96 overflow-y-auto">
+                                    ${res.pricingSummary}
+                                </div>
+                                <button onclick="document.getElementById('summary-modal-${res.id}').classList.add('hidden')" class="mt-4 bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-600">Close</button>
+                            </div>
+                        </div>
+
+                        <!-- Modal for Transportation Notes -->
+                        <div id="transport-modal-${res.id}" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center p-4 hidden">
+                            <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-2xl">
+                                <h4 class="text-xl font-bold mb-3 text-green-600">Transportation Details for ${res.guestName}</h4>
+                                <p class="font-semibold mb-2">Service Status: ${transportHtml}</p>
+                                <div class="whitespace-pre-wrap text-sm text-gray-700 border p-3 rounded-md bg-gray-50 max-h-96 overflow-y-auto">
+                                    ${res.transportationNotes}
+                                </div>
+                                <button onclick="document.getElementById('transport-modal-${res.id}').classList.add('hidden')" class="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+
+        // --- FORM SUBMISSION (Add Data) ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!isAuthReady || !db) {
+                showStatus("System not ready. Please wait for authentication.", STATUS.ERROR);
+                return;
+            }
+
+            // Lock the button and show spinner
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            const reservationData = {
+                agentName: document.getElementById('agentName').value.trim(),
+                guestName: document.getElementById('guestName').value.trim(),
+                resortName: document.getElementById('resortName').value.trim(), 
+                // Store in YYYY-MM-DD for reliable sorting
+                checkInDate: document.getElementById('checkInDate').value,
+                checkOutDate: document.getElementById('checkOutDate').value,
+                adults: parseInt(document.getElementById('adults').value, 10),
+                children: parseInt(document.getElementById('children').value, 10),
+                mealPlan: document.getElementById('mealPlan').value.trim(),
+                roomType: document.getElementById('roomType').value.trim(),
+                totalNights: parseInt(document.getElementById('totalNights').value, 10),
+                
+                // Special Services
+                hasCandleLightDinner: document.getElementById('candleLightDinner').checked,
+                hasFlowerBedDecoration: document.getElementById('flowerBedDecoration').checked,
+                
+                // Transportation & Payment Fields
+                hasPickup: document.getElementById('hasPickup').checked,
+                hasDrop: document.getElementById('hasDrop').checked,
+                transportationNotes: document.getElementById('transportationNotes').value.trim(),
+                isPaymentPending: document.getElementById('isPaymentPending').checked,
+                
+                pricingSummary: document.getElementById('pricingSummary').value.trim(),
+                totalAmount: parseFloat(document.getElementById('totalAmount').value),
+                
+                // Metadata
+                createdAt: serverTimestamp(),
+                createdBy: userId
+            };
+
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/reservations`;
+                await addDoc(collection(db, collectionPath), reservationData);
+
+                showStatus(`Reservation for ${reservationData.guestName} submitted successfully!`, STATUS.SUCCESS);
+                form.reset(); // Clear form after success
+
+            } catch (error) {
+                console.error("Error adding document:", error);
+                showStatus("Error submitting reservation. Please check the console.", STATUS.ERROR);
+            } finally {
+                // Unlock the button and hide spinner
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
+        });
+
+        // Start the application
+        window.onload = initializeFirebase;
+
+    </script>
+</body>
+</html>
